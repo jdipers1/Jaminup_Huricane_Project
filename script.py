@@ -21,66 +21,190 @@ deaths = [90,4000,16,3103,179,184,408,682,5,1023,43,319,688,259,37,11,2068,269,3
 
 # write your update damages function here:
 
+# conversion = {"M": 1000000,
+#              "B": 1000000000}
 
-
-
-
-
+def update_damages(values):
+    num_damages = []
+    
+    for item in values:
+        if 'M' in item:
+            num_damages.append(float(item.strip('M'))*1000000)
+        elif 'B' in item:
+            num_damages.append(float(item.strip('B'))*1000000000)
+        else:
+            num_damages.append(item)
+    
+    return num_damages
+    
+numeric_damages = update_damages(damages)
+print(numeric_damages)
 
 # write your construct hurricane dictionary function here:
 
-
-
-
-
-
+def hurricane_dict(*lst):
+    data_set = []
+    
+    for i in range(len(lst[0])):
+        data_set.append({"Name": lst[0][i],
+        "Month": lst[1][i],
+        "Year": lst[2][i],
+        "Max Sustained Winds": lst[3][i],
+        "Areas Affected": lst[4][i],
+        "Damage": lst[5][i],
+        "Death": lst[6][i]
+        })
+    
+    hurricane_data = {lst[0][i]: data_set[i] for i in range(len(lst[0]))}
+    
+    return hurricane_data
+    
+hurricane_database = hurricane_dict(names, months, years, max_sustained_winds, areas_affected, numeric_damages, deaths)
+print(hurricane_database)
 
 # write your construct hurricane by year dictionary function here:
 
+def by_year(data):
+    hurricane_by_year = {}
+    
+    for hurricane in data.values():
+        year = hurricane.get('Year')
+        if year not in hurricane_by_year.keys():
+            hurricane_by_year.update({year: [hurricane]})
+        if year in hurricane_by_year.keys():
+            hurricane_by_year[year].append(hurricane)
+    
+    return hurricane_by_year
 
-
-
-
-
+hurricane_data_by_year = by_year(hurricane_database)
+print(hurricane_data_by_year)
 
 # write your count affected areas function here:
 
+def area_count(areas):
+    counted_areas = {}
+    
+    for area_set in areas:
+        for area in area_set:
+            if area not in counted_areas.keys():
+                counted_areas[area] = 1
+            if area in counted_areas.keys():
+                counted_areas[area] += 1
+    
+    return counted_areas
 
-
-
-
-
+most_affected_areas = area_count(areas_affected)
+print(most_affected_areas)
 
 # write your find most affected area function here:
 
+def most_affected(area_dict):
+    greatest_count = 0
+    area_affected = ""
+    
+    for area, count in area_dict.items():
+        if count > greatest_count:
+            greatest_count = count
+        if area_dict.get(area) == greatest_count:
+            area_affected = area
+            
+    most_affected_area = "{AREA} is the area most affected by hurricanes, being hit {COUNT} times.".format(AREA=area_affected, COUNT=str(greatest_count))
+            
+    return most_affected_area
 
-
-
-
-
+worst_hit = most_affected(most_affected_areas)
+print(worst_hit)
 
 # write your greatest number of deaths function here:
 
-
-
-
-
-
+def greatest_deaths(hurr_dict):
+    max_death = 0
+    max_name = ""
+    
+    for info in hurr_dict.values():
+        if info['Death'] > max_death:
+            max_death = info['Death']
+            max_name = info['Name']
+    
+    most_deaths = "The most deadly hurricane was {NAME} responsible for {DEATH} deaths".format(NAME=max_name, DEATH=max_death)
+    return most_deaths
+    
+deadliest_hurricane = greatest_deaths(hurricane_database)
+print(deadliest_hurricane)
 
 # write your catgeorize by mortality function here:
 
+def mortality_cat(hurr_dict):
+    # mortality_scale = {0: 0,
+    #               1: 100,
+    #               2: 500,
+    #               3: 1000,
+    #               4: 10000}
+    
+    mortality_dict = {0: [], 1: [], 2: [], 3: [], 4: []}
+    
+    for info in hurr_dict.values():
+        if info['Death'] >= 10000:
+            mortality_dict[4].append(info)
+        elif info['Death'] >= 1000:
+            mortality_dict[3].append(info)
+        elif info['Death'] >= 500:
+            mortality_dict[2].append(info)
+        elif info['Death'] >= 100:
+            mortality_dict[1].append(info)
+        else:
+            mortality_dict[0].append(info)
+    
+    return mortality_dict
 
-
-
-
-
+mortality_rating = mortality_cat(hurricane_database)
+print(mortality_rating)
 
 # write your greatest damage function here:
 
+def greatest_damage(hurr_dict):
+    max_damage = 0
+    max_hurr = ""
+    
+    for info in hurr_dict.values():
+        if info['Damage'] == 'Damages not recorded':
+            continue
+        if info['Damage'] > max_damage:
+            max_damage = info['Damage']
+            max_hurr = info['Name']
+    
+    most_damage = "Hurrican {NAME} had the greatest damage cost at {COST}".format(NAME=max_hurr, COST=max_damage)
+    return most_damage
 
-
-
-
-
+biggest_financial_impact = greatest_damage(hurricane_database)
+print(biggest_financial_impact)
 
 # write your catgeorize by damage function here:
+
+def damage_cat(hurr_dict):
+    # damage_scale = {0: 0,
+    #             1: 100000000,
+    #             2: 1000000000,
+    #             3: 10000000000,
+    #             4: 50000000000}
+    
+    damage_dict = {0: [], 1: [], 2: [], 3: [], 4: []}
+    
+    for info in hurr_dict.values():
+        if type(info['Damage']) == type(''):
+            continue
+        if info['Damage'] >= 50000000000:
+            damage_dict[4].append(info)
+        elif info['Damage'] >= 10000000000:
+            damage_dict[3].append(info)
+        elif info['Damage'] >= 1000000000:
+            damage_dict[2].append(info)
+        elif info['Damage'] >= 100000000:
+            damage_dict[1].append(info)
+        else:
+            damage_dict[0].append(info)
+    
+    return damage_dict
+
+damage_rating = damage_cat(hurricane_database)
+print(damage_rating)
